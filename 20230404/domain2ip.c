@@ -8,7 +8,7 @@ int main()
     struct addrinfo *result, *p, hints;
     hints.ai_family = AF_INET;
 
-    int ret = getaddrinfo("hust.edu.vn", "http", &hints, &result);
+    int ret = getaddrinfo("google.com", "http", &hints, &result);
 
     if (ret != 0)
     {
@@ -24,7 +24,7 @@ int main()
         if (p->ai_family == AF_INET)
         {
             printf("IPv4: %s\n", 
-                inet_ntoa(((struct sockaddr_in *)p->ai_addr)->sin_addr));
+                inet_ntoa(((struct sockaddr_in *)(p->ai_addr))->sin_addr));
             
         } 
         else if (p->ai_family == AF_INET6)

@@ -13,7 +13,7 @@ int main()
     version = packet_bytes[0] >> 4;
     printf("version = %d\n", version);
 
-    ihl = (packet_bytes[0] & 0xf) * 4;
+    ihl = (packet_bytes[0] & 0x0f) * 4;
     printf("ihl = %d bytes\n", ihl);
 
     total_length = packet_bytes[2] * 256 + packet_bytes[3];

@@ -38,7 +38,8 @@ int main()
 
     int client = accept(listener, 
         (struct sockaddr *)&client_addr, 
-        &client_addr_len);
+        &client_addr_len
+    );
 
     printf("Accepted socket %d from IP: %s:%d\n", 
         client,
