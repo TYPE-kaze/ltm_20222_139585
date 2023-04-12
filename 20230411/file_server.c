@@ -31,37 +31,38 @@ int main()
         return 1;
     }
 
-    printf("Khoi tao thanh cong!!!\n");
-
     struct sockaddr_in client_addr;
     int client_addr_len = sizeof(client_addr);
 
     int client = accept(listener, 
         (struct sockaddr *)&client_addr, 
-        &client_addr_len
-    );
+        &client_addr_len);
 
     printf("Accepted socket %d from IP: %s:%d\n", 
         client,
         inet_ntoa(client_addr.sin_addr),
         ntohs(client_addr.sin_port));
 
-    char buf[256];    
-    int ret = recv(client, buf, sizeof(buf), 0);
-    if (ret < sizeof(buf))
-        buf[ret] = 0;
-    printf("%d bytes from client: %s", ret, buf);
-    
-    while (1)
-    {
-        printf("Enter string: ");
-        fgets(buf, sizeof(buf), stdin);
-        send(client, buf, strlen(buf), 0);
+    char *filename = "ecard.mp4";
 
-        if (strncmp(buf, "exit", 4) == 0)
+    FILE *f = fopen(filename, "rb");
+    char buf[2048];
+    int ret;
+
+    int len = strlen(filename);
+    send(client, &len, sizeof(len), 0);
+    send(client, filename, strlen(filename), 0);
+
+    while (!feof(f))
+    {
+        ret = fread(buf, 1, sizeof(buf), f);
+        if (ret <= 0)
             break;
+        send(client, buf, ret, 0);
     }
     
+    fclose(f);
+
     close(client);
     close(listener);
 }

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <arpa/inet.h>
@@ -38,30 +39,39 @@ int main()
 
     int client = accept(listener, 
         (struct sockaddr *)&client_addr, 
-        &client_addr_len
-    );
+        &client_addr_len);
 
     printf("Accepted socket %d from IP: %s:%d\n", 
         client,
         inet_ntoa(client_addr.sin_addr),
         ntohs(client_addr.sin_port));
 
-    char buf[256];    
-    int ret = recv(client, buf, sizeof(buf), 0);
-    if (ret < sizeof(buf))
-        buf[ret] = 0;
-    printf("%d bytes from client: %s", ret, buf);
-    
+    char buf[256];
+    int ret;
+
+    char *request = NULL;
+    int size = 0;
+
     while (1)
     {
-        printf("Enter string: ");
-        fgets(buf, sizeof(buf), stdin);
-        send(client, buf, strlen(buf), 0);
-
-        if (strncmp(buf, "exit", 4) == 0)
+        ret = recv(client, buf, sizeof(buf), 0);
+        if (ret <= 0)
             break;
-    }
-    
+
+        request = realloc(request, size + ret);
+        memcpy(request + size, buf, ret);
+        size += ret;
+
+        if (strstr(request, "\r\n\r\n") != NULL)
+            break;
+    }    
+
+    printf("%d bytes from client: %s", size, request);
+    free(request);
+
+    strcpy(buf, "HTTP/1.1 200 OK\r\nContentType: text/html\r\n\r\n<html><body><h1>Hello World</h1></body></html>");
+    send(client, buf, strlen(buf), 0);
+
     close(client);
     close(listener);
 }
