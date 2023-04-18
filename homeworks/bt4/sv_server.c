@@ -8,14 +8,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define MAX_LEN 256
-struct SinhVien {
-    char mssv[MAX_LEN];
-    char hoTen[MAX_LEN];
-    char ngaySinh[MAX_LEN];
-    float diemTB;
-};
-
 int main(int argc, char *argv[]) {
     if (argc != 3)
     {
@@ -66,29 +58,55 @@ int main(int argc, char *argv[]) {
         inet_ntoa(client_addr.sin_addr),
         ntohs(client_addr.sin_port)
     );
-    
-    //Sv info
-    struct SinhVien sv;
-    int ret = recv(client, &sv, sizeof(sv), 0);
-    char sv_string[256];
-    sprintf(sv_string,"%s %s %.2f",sv.hoTen, sv.ngaySinh, sv.diemTB);
 
-    //Time
-    time_t t = time(NULL);
-    struct tm *local_time = localtime(&t);
-    char datetime_string[20];
-    strftime(datetime_string, sizeof(datetime_string), "%Y-%m-%d %H:%M:%S", local_time);
-    
-    //log entry
-    char entry[512];
-    sprintf(entry, "%s %s %s", inet_ntoa(client_addr.sin_addr), datetime_string, sv_string);
-    printf("%s\n", entry);
+    char mssv[10];
+    char hoten[64];
+    char ngaySinh[12];
+    float dtb;
+    char buf[256];
 
-    //log
-    FILE *file;
-    file = fopen(logFN, "a+");
-    fprintf(file,"%s\n", entry);
-    fclose(file);
+    while (1)
+    {
+        int ret = recv(client, buf, sizeof(buf), 0);
+        if (ret<=0) break;
+
+        buf[ret] = 0;
+
+        memcpy(mssv, buf, 8);
+        mssv[8] = 0;
+        printf("MMSV: %s\n", mssv);
+
+        int hoten_len = ret - 25;
+        memcpy(hoten, buf + 9, hoten_len);
+        hoten[hoten_len] = 0;
+        printf("Ten: %s\n", hoten);
+
+        memcpy(ngaySinh, buf + hoten_len + 10, 10);
+        ngaySinh[10] = 0;
+        printf("Ngay sinh: %s\n", ngaySinh);
+
+        dtb = atof(buf + hoten_len + 21);
+        printf("DTB: %.2f\n", dtb);
+
+        //Time
+        time_t t = time(NULL);
+        struct tm *local_time = localtime(&t);
+        char datetime_string[20];
+        strftime(datetime_string, sizeof(datetime_string), "%Y-%m-%d %H:%M:%S", local_time);
+        
+        //log entry
+        char entry[512];
+        sprintf(entry, "%s %s %s", inet_ntoa(client_addr.sin_addr), datetime_string, buf);
+
+        //print log entry
+        printf("%s\n", entry);
+
+        //log
+        FILE *file;
+        file = fopen(logFN, "a+");
+        fprintf(file,"%s\n", entry);
+        fclose(file);
+    }
 
     close(client);
     close(listener);
