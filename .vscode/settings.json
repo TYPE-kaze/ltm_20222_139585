@@ -1,7 +1,8 @@
 {
-    "files.associations": {
-        "unistd.h": "c",
-        "stdio.h": "c",
-        "netdb.h": "c"
-    }
+  "files.associations": {
+    "unistd.h": "c",
+    "stdio.h": "c",
+    "netdb.h": "c",
+    "inet.h": "c"
+  }
 }

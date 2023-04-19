@@ -47,32 +47,67 @@ int main()
         ntohs(client_addr.sin_port)
     );
 
-    //set 9 first 9 byte to 'r', a random char 
+    // //set 9 first 9 byte to 'r', a random char 
+    // char buf[128];
+    // int ret;
+    // int counter = 0;
+    // memset(buf, 'r', 9);
+
+    // while (1)
+    // {
+    //     //recvive 
+    //     ret = recv(client, buf + 9, sizeof(buf) - 9 , 0);
+    //     if (ret <= 0) break;
+
+    //     buf[ret] = '\0';
+    //     printf("recieved: %s\n",buf);
+    //     char *pos = buf;
+    //     while ((pos = strstr(pos, "0123456789")) != NULL) {
+    //         counter++;
+    //         pos += strlen("0123456789");
+    //     }
+
+    //     memmove(buf, &buf[ret - 9], 9);
+    //     printf("buffer after move: %s\n",buf);
+    // }
+
+    // printf("The number of time '123456789' appear is: %d\n", counter);
     char buf[128];
     int ret;
-    int counter = 0;
     memset(buf, 'r', 9);
+    int counter = 0;
+
 
     while (1)
-    {
-        //recvive 
-        ret = recv(client, buf + 9, sizeof(buf) - 9 , 0);
+    {   
+        ret = recv(client, buf + 9, sizeof(buf) - 9 ,0);
         if (ret <= 0) break;
+        if (ret < sizeof(buf) - 9) buf[ret + 9] = 0;
+        printf("buf: %s\n", buf);
 
-        buf[ret] = '\0';
-        printf("recieved: %s\n",buf);
-        char *pos = buf;
-        while ((pos = strstr(pos, "0123456789")) != NULL) {
-            counter++;
-            pos += strlen("0123456789");
-        }
+        // printf("char after 1si 9 byte: %c\n", *(buf + 9));
 
-        memmove(buf, &buf[ret - 9], 9);
-        printf("buffer after move: %s\n",buf);
+        // count 
+        //TODO: Something wrong with having 2 loop in this case
+        // char *pos = buf;
+        // while ((pos = strstr(pos, "0123456789")) != NULL) {
+        //     counter++;
+        //     pos += 10;
+        // };
+
+        // for (int i = 0; i < strlen(buf); i++) {
+        //     if (strstr(&buf[i], "0123456789") == &buf[i]) {
+        //         counter++;
+        //     }
+        // }   
+
+        //after count
+        strncpy(buf, buf + strlen(buf) - 9, 9);
+
     }
 
-    printf("The number of time '123456789' appear is: %d\n", counter);
-
+    printf("The number of occurrence: %d\n", counter);
+    
     close(client);
     close(listener);
     return 0;
