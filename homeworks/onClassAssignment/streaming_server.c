@@ -89,11 +89,11 @@ int main()
 
         // count 
         //TODO: Something wrong with having 2 loop in this case
-        // char *pos = buf;
-        // while ((pos = strstr(pos, "0123456789")) != NULL) {
-        //     counter++;
-        //     pos += 10;
-        // };
+        char *pos = buf;
+        while ((pos = strstr(pos, "0123456789")) != NULL) {
+            counter++;
+            pos += 10;
+        };
 
         // for (int i = 0; i < strlen(buf); i++) {
         //     if (strstr(&buf[i], "0123456789") == &buf[i]) {
