@@ -22,7 +22,7 @@ int main()
     if (bind(listener, (struct sockaddr *)&addr, sizeof(addr)))
     {
         perror("bind() failed");
-        return 1;        
+        return 1;
     }
 
     if (listen(listener, 5))
@@ -36,18 +36,16 @@ int main()
     struct sockaddr_in client_addr;
     int client_addr_len = sizeof(client_addr);
 
-    int client = accept(listener, 
-        (struct sockaddr *)&client_addr, 
-        &client_addr_len
-    );
+    int client = accept(listener,
+                        (struct sockaddr *)&client_addr,
+                        &client_addr_len);
 
-    printf("Accepted socket %d from IP: %s:%d\n", 
-        client,
-        inet_ntoa(client_addr.sin_addr),
-        ntohs(client_addr.sin_port)
-    );
+    printf("Accepted socket %d from IP: %s:%d\n",
+           client,
+           inet_ntoa(client_addr.sin_addr),
+           ntohs(client_addr.sin_port));
 
-    // //set 9 first 9 byte to 'r', a random char 
+    // //set 9 first 9 byte to 'r', a random char
     // char buf[128];
     // int ret;
     // int counter = 0;
@@ -55,7 +53,7 @@ int main()
 
     // while (1)
     // {
-    //     //recvive 
+    //     //recvive
     //     ret = recv(client, buf + 9, sizeof(buf) - 9 , 0);
     //     if (ret <= 0) break;
 
@@ -77,20 +75,22 @@ int main()
     memset(buf, 'r', 9);
     int counter = 0;
 
-
     while (1)
-    {   
-        ret = recv(client, buf + 9, sizeof(buf) - 9 ,0);
-        if (ret <= 0) break;
-        if (ret < sizeof(buf) - 9) buf[ret + 9] = 0;
+    {
+        ret = recv(client, buf + 9, sizeof(buf) - 9, 0);
+        if (ret <= 0)
+            break;
+        if (ret < sizeof(buf) - 9)
+            buf[ret + 9] = 0;
         printf("buf: %s\n", buf);
 
         // printf("char after 1si 9 byte: %c\n", *(buf + 9));
 
-        // count 
-        //TODO: Something wrong with having 2 loop in this case
+        // count
+        // TODO: Something wrong with having 2 loop in this case
         char *pos = buf;
-        while ((pos = strstr(pos, "0123456789")) != NULL) {
+        while ((pos = strstr(pos, "0123456789")) != NULL)
+        {
             counter++;
             pos += 10;
         };
@@ -99,15 +99,14 @@ int main()
         //     if (strstr(&buf[i], "0123456789") == &buf[i]) {
         //         counter++;
         //     }
-        // }   
+        // }
 
-        //after count
+        // after count
         strncpy(buf, buf + strlen(buf) - 9, 9);
-
     }
 
     printf("The number of occurrence: %d\n", counter);
-    
+
     close(client);
     close(listener);
     return 0;

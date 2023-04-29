@@ -52,3 +52,7 @@ Mkfile.old
 dkms.conf
 homeworks/onClassAssignment/udp_file_sender
 homeworks/onClassAssignment/udp_file_recieve/udp_file_reciever
+
+.vscode/*
+
+out/*

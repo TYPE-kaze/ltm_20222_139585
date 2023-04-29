@@ -3,6 +3,7 @@
     "unistd.h": "c",
     "stdio.h": "c",
     "netdb.h": "c",
+    "socket.h": "c",
     "inet.h": "c"
   }
 }
