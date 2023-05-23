@@ -178,6 +178,7 @@ int main()
                         // Da dang nhap
                         char sendbuf[512];
 
+                        // Time
                         time_t t = time(NULL);
                         struct tm *local_time = localtime(&t);
                         char datetime_string[30];
