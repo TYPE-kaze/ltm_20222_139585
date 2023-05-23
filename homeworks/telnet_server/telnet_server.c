@@ -62,20 +62,20 @@ int main()
 
         if (fds[0].revents & POLLIN)
         {
-            int client = accept(listener_fd, NULL, NULL);
+            int client_fd = accept(listener_fd, NULL, NULL);
             if (nfds < MAX_CLIENTS)
             {
-                printf("New client connected: %d\n", client);
-                fds[nfds].fd = client;
+                printf("New client connected: %d\n", client_fd);
+                fds[nfds].fd = client_fd;
                 fds[nfds].events = POLLIN;
                 nfds++;
                 char *msg = "Login using this pattern: <username> <password>\n";
-                send(client, msg, strlen(msg), 0);
+                send(client_fd, msg, strlen(msg), 0);
             }
             else
             {
                 printf("Too many connections\n");
-                close(client);
+                close(client_fd);
             }
         }
 
@@ -133,7 +133,6 @@ int main()
                     // Xu ly cu phap yeu cau dang nhap
                     if (j == num_users)
                     {
-
                         char username[128], passwd[128], tmp[128];
                         ret = sscanf(buf, "%s%s%s", username, passwd, tmp);
                         if (ret == 2)
@@ -144,11 +143,12 @@ int main()
                             int is_user = 0;
                             if (f == NULL)
                             {
-                                perror("Error opening file");
+                                perror("Error reading csdl.txt");
                                 return (-1);
                             }
                             // so sanh
-                            while (fgets(line, 100, f) != NULL)
+                            // TODO: this may be including even the ENTER char!?
+                            while (fgets(line, sizeof(line), f) != NULL)
                             {
                                 if (strcmp(buf, line) == 0)
                                 {
@@ -167,7 +167,7 @@ int main()
                             }
                             else
                             {
-                                char *msg = "Sai username hoac password. Vui long dien lai!\n";
+                                char *msg = "Wrong username or password.\n";
                                 send(client_fd, msg, strlen(msg), 0);
                             }
                         }
@@ -180,8 +180,9 @@ int main()
                     else // da dang nhap, bat dau nhan lenh
                     {
                         char command[256];
+                        if (buf[strlen(buf) - 1] == '\n')
+                            buf[strlen(buf) - 1] = 0;
 
-                        buf[strlen(buf) - 1] = 0;
                         sprintf(command, "%s > out.txt 2> out.txt ", buf);
                         system(command);
 
@@ -205,7 +206,7 @@ int main()
                         fread(result, file_size, 1, file);
                         fclose(file);
 
-                        send(users[j], result, file_size, 0);
+                        send(client_fd, result, file_size, 0);
                     }
                 }
             }
