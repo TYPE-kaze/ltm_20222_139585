@@ -9,8 +9,6 @@
 #include <poll.h>
 #include <time.h>
 
-#define MAX_CLIENTS 64
-
 int main(int argc, char *argv[])
 {
     if (argc != 4)
@@ -33,7 +31,7 @@ int main(int argc, char *argv[])
 
     struct sockaddr_in local_addr;
     local_addr.sin_family = AF_INET;
-    local_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    local_addr.sin_addr.s_addr = INADDR_ANY;
     local_addr.sin_port = htons(recv_port);
 
     bind(other_fd, (struct sockaddr *)&send_to_addr, sizeof(send_to_addr));
@@ -41,8 +39,7 @@ int main(int argc, char *argv[])
     printf("Recieving on port %d...\n", recv_port);
     printf("Seding to %s:%d...\n", destIP, dest_port);
 
-    struct pollfd fds[MAX_CLIENTS];
-    int nfds = 2;
+    struct pollfd fds[2];
 
     fds[0].fd = STDIN_FILENO;
     fds[0].events = POLLIN;
@@ -54,7 +51,7 @@ int main(int argc, char *argv[])
 
     while (1)
     {
-        int ret = poll(fds, nfds, -1);
+        int ret = poll(fds, 2, -1);
         if (ret < 0)
         {
             perror("poll() failed");
@@ -70,7 +67,8 @@ int main(int argc, char *argv[])
 
         if (fds[1].revents & POLLIN)
         {
-            ret = recv(other_fd, buf, sizeof(buf), 0);
+            ret = recvfrom(other_fd, buf, sizeof(buf), 0, NULL, NULL);
+
             if (ret <= 0)
                 break;
             buf[ret] = 0;
