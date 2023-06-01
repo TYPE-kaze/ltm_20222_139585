@@ -104,7 +104,7 @@ int main()
                     ret = sscanf(buf, "%s%s%s", username, passwd, tmp);
                     if (ret == 2)
                     {
-                        // doc user/pass tu file csdl
+                        // read user/pass tu file csdl
                         FILE *f = fopen("csdl.txt", "r");
                         char line[100];
                         if (f == NULL)
