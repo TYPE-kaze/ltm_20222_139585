@@ -56,3 +56,6 @@ homeworks/onClassAssignment/udp_file_recieve/udp_file_reciever
 .vscode/*
 
 out/*
+
+test.c
+test.out
