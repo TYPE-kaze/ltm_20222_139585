@@ -81,7 +81,7 @@ void *client_thread(void *param)
             if (!is_login)
                 break;
 
-            if (idx != num_user)
+            if (idx != num_user - 1)
             {
                 user[idx] = user[num_user - 1];
                 user_id[idx] = user_id[num_user - 1];
