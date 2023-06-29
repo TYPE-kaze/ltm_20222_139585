@@ -109,7 +109,6 @@ void *client_thread(void *param)
         if ((header_end_pos = strstr(header_buf, "\r\n\r\n")) != NULL)
             break;
     }
-    puts(header_buf);
     *header_end_pos = '\0';
     char http_verb[8];
     char uri[128];
@@ -150,50 +149,51 @@ void *client_thread(void *param)
 void *file_req_handler(FILE *f, char *uri, int client)
 {
     char buf[256];
-    // get file size
-    fseek(f, 0, SEEK_END);
-    long size = ftell(f);
-    fseek(f, 0, SEEK_SET);
-
+    int ret = 0;
     // get file name and ext
     char *ext = get_ext(uri);
     char *filename = get_filename(uri);
     char content_type[64] = "\0";
 
     // Build header base on above
-    if (!strcmp(ext, "c") || !strcmp(ext, "cpp") || !strcmp(ext, "txt"))
+    // this if is for a file without ext
+    if (ext)
     {
-        strcpy(content_type, "text/plain");
-    }
-    else if (!strcmp(ext, "jpg"))
-    {
-        // sprintf(content_type, "image/%s", strcmp(ext, "jpg") ? "png" : "jpeg");
-        strcpy(content_type, "image/jpeg");
-    }
-    else if (!strcmp(ext, "png"))
-    {
-        strcpy(content_type, "image/png");
-    }
-    else if (!strcmp(ext, "mp3"))
-    {
-        strcpy(content_type, "audio/mpeg");
+        if (!strcmp(ext, "c") || !strcmp(ext, "cpp") || !strcmp(ext, "txt"))
+        {
+            strcpy(content_type, "text/plain");
+        }
+        else if (!strcmp(ext, "jpg"))
+        {
+            // sprintf(content_type, "image/%s", strcmp(ext, "jpg") ? "png" : "jpeg");
+            strcpy(content_type, "image/jpeg");
+        }
+        else if (!strcmp(ext, "png"))
+        {
+            strcpy(content_type, "image/png");
+        }
+        else if (!strcmp(ext, "mp3"))
+        {
+            strcpy(content_type, "audio/mpeg");
+        }
     }
 
-    char header[64];
     // whether file ext is supported or not
     if (*content_type == '\0')
     {
-        make_res_header(header, 415, "Unsupported Media Type", "text/html");
-        strcpy(buf, header);
+        make_res_header(buf, 415, "Unsupported Media Type", "text/html");
         strcat(buf, "<html><h1>415 Unsupported Media Type</h1></html>");
         send(client, buf, strlen(buf), 0);
     }
     else
     {
+        // get file size
+        fseek(f, 0, SEEK_END);
+        long size = ftell(f);
+        fseek(f, 0, SEEK_SET);
         // TODO: Forgot to take Content-Length in to account, now have to manually create this thing ...
-        sprintf(header, "HTTP/1.1 200 OK\r\nContent-Length: %ld\r\nContent-Type: %s\r\n\r\n", size, content_type);
-        strcpy(buf, header);
-        send(client, buf, strlen(buf), 0);
+        ret = sprintf(buf, "HTTP/1.1 200 OK\r\nContent-Length: %ld\r\nContent-Type: %s\r\n\r\n", size, content_type);
+        send(client, buf, ret, 0);
         while (1)
         {
             int len = fread(buf, 1, sizeof(buf), f);
@@ -274,6 +274,9 @@ char *get_ext(char *filename)
 char *get_part_of_text(char *text, char delimiter)
 {
     char *cur = strchr(text, delimiter);
+    // this if is for a file without ext
+    if (!cur)
+        return NULL;
     char *next = NULL;
     while (1)
     {
