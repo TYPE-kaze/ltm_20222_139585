@@ -1,6 +1,0 @@
-###NETCAT
-- TCP server: nc -v -l -p <cổng đợi kết nối>
-- TCP client: nc -v <ip/tên miền> <cổng>
-- UDP receiver: nc -v -l -u -p <cổng đợi kết nối>
-- UDP sender: nc -v -u <ip/tên miền> <cổng>
-
