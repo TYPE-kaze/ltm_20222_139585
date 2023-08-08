@@ -1,3 +1,4 @@
+// This had not been test
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -127,9 +128,15 @@ int main()
                     // neu la lenh co ho tro -> xu ly
                     char verb[6];
                     char arg[256];
-                    ret = sscanf(buf, "%s%[^\0]", verb, arg);
-                    printf("VERB: %s\n, arg: %s\n", verb, arg);
-                    if (strcmp(verb, "JOIN") == 0)
+                    // Need to get all the char after the verb
+                    char *delimiter = strchr(buf, ' ');
+                    delimiter = '\0';
+
+                    strcpy(verb, buf);
+                    strcpy(arg, delimiter + 1);
+
+                    printf("VERB: %s\nArg: %s\n", verb, arg);
+                    if (strncmp(verb, "JOIN", 4) == 0)
                     {
                         char temp1[128];
                         char temp2[128];
